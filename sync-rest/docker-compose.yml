@@ -1,0 +1,46 @@
+version: '3.8'
+services:
+
+  inventory:
+    build: ./inventory_service
+    container_name: sync_inventory
+    environment:
+      - INVENTORY_DELAY_MS=${INVENTORY_DELAY_MS:-0}
+      - INVENTORY_FAIL=${INVENTORY_FAIL:-false}
+    ports:
+      - "8082:8082"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8082/actuator/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  notification:
+    build: ./notification_service
+    container_name: sync_notification
+    ports:
+      - "8083:8083"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8083/actuator/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  order:
+    build: ./order_service
+    container_name: sync_order
+    environment:
+      - INVENTORY_URL=${INVENTORY_URL:-http://inventory:8082}
+      - NOTIFICATION_URL=${NOTIFICATION_URL:-http://notification:8083}
+      - INVENTORY_TIMEOUT_MS=${INVENTORY_TIMEOUT_MS:-1000}
+      - NOTIFICATION_TIMEOUT_MS=${NOTIFICATION_TIMEOUT_MS:-1000}
+    ports:
+      - "8081:8081"
+    depends_on:
+      - inventory
+      - notification
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8081/actuator/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3

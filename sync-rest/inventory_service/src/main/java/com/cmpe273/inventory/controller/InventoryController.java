@@ -14,15 +14,15 @@ public class InventoryController {
 
     private final Map<String, Integer> stock = new ConcurrentHashMap<>();
 
-    @Value("${inventory.delay.ms:0}")
+    @Value("${INVENTORY_DELAY_MS:0}")
     private long delayMs;
 
-    @Value("${inventory.fail:false}")
+    @Value("${INVENTORY_FAIL:false}")
     private boolean forceFail;
 
     public InventoryController() {
-        stock.put("burrito", 100);
-        stock.put("pizza", 100);
+        stock.put("burrito", 1000);
+        stock.put("pizza", 1000);
     }
 
     @PostMapping
