@@ -9,7 +9,6 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 @RestController
-@RequestMapping("/reserve")
 public class InventoryController {
 
     private final Map<String, Integer> stock = new ConcurrentHashMap<>();
@@ -25,7 +24,7 @@ public class InventoryController {
         stock.put("pizza", 1000);
     }
 
-    @PostMapping
+    @PostMapping("/reserve")
     public ResponseEntity<?> reserve(@RequestBody Map<String, Object> request) throws InterruptedException {
 
         if (delayMs > 0) {
@@ -53,5 +52,10 @@ public class InventoryController {
                         "status", "RESERVED"
                 )
         );
+    }
+
+    @GetMapping("/inventory")
+    public ResponseEntity<Map<String, Integer>> getAllInventory() {
+        return ResponseEntity.ok(stock);
     }
 }

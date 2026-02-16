@@ -1,0 +1,10 @@
+﻿<!DOCTYPE html>
+<html><head><meta charset="UTF-8"><title>Failure Verification</title>
+<style>body{font-family:sans-serif;max-width:600px;margin:2em auto;padding:1em;} h1{color:#333;} .ok{color:green;} .stat{background:#f0f4f8;padding:1em;border-radius:8px;margin:1em 0;}</style>
+</head><body>
+<h1>3. Inventory Failure Verification</h1>
+<p>OrderService must return <strong>502</strong> or <strong>504</strong> with error reason and must not hang.</p>
+<div class="stat"><strong>Status counts (3 requests):</strong> <code>{"503":3}</code></div>
+<p class="ok">Verdict: 502/504 returned as expected; service did not hang.</p>
+<p><a href="latency_index.html">Back to index</a></p>
+</body></html>

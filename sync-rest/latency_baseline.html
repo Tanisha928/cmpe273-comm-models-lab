@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Sync-REST Latency Report</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>body{font-family:sans-serif;max-width:900px;margin:2em auto;padding:0 1em;} h1{color:#333;} .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:1em;margin:1em 0;} .stat{background:#f0f4f8;padding:1em;border-radius:8px;text-align:center;} .stat span{display:block;font-size:1.5em;font-weight:bold;color:#2563eb;}</style>
+</head>
+<body>
+<h1>Sync-REST Latency Report</h1>
+<p><strong>1. Baseline</strong> &middot; Generated: 2026-02-16T20:06:21.633385881Z</p>
+<div class="stats">
+<div class="stat"><span id="mean">-</span>Avg (ms)</div>
+<div class="stat"><span id="p50">-</span>p50 (ms)</div>
+<div class="stat"><span id="p95">-</span>p95 (ms)</div>
+<div class="stat"><span id="p99">-</span>p99 (ms)</div>
+</div>
+<p>N=200 &middot; Success=0 (0.00%) &middot; Exceptions=0 &middot; Status counts: {400=200}</p>
+<div style="height:280px;"><canvas id="percentileChart"></canvas></div>
+<div style="height:280px;"><canvas id="histogramChart"></canvas></div>
+<script>
+var reportData = { "title": "1. Baseline", "url": "http://host.docker.internal:8081/order", "n": 200, "success": 0, "exceptions": 0, "mean": 20.47, "p50": 16, "p95": 35, "p99": 44, "statusCounts": "{400=200}", "histogram": [199,0,0,1,0,0], "labels": ["0-50ms","50-100ms","100-200ms","200-500ms","500-1000ms","1000ms+"] };
+document.getElementById('mean').textContent = reportData.mean.toFixed(2);
+document.getElementById('p50').textContent = reportData.p50;
+document.getElementById('p95').textContent = reportData.p95;
+document.getElementById('p99').textContent = reportData.p99;
+new Chart(document.getElementById('percentileChart'), { type: 'bar', data: { labels: ['Avg', 'p50', 'p95', 'p99'], datasets: [{ label: 'Latency (ms)', data: [reportData.mean, reportData.p50, reportData.p95, reportData.p99], backgroundColor: ['#3b82f6','#10b981','#f59e0b','#ef4444'] }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, title: { display: true, text: 'ms' } } } } });
+new Chart(document.getElementById('histogramChart'), { type: 'bar', data: { labels: reportData.labels, datasets: [{ label: 'Requests', data: reportData.histogram, backgroundColor: '#6366f1' }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, title: { display: true, text: 'Count' } } } } });
+</script>
+</body>
+</html>
