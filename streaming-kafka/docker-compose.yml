@@ -1,0 +1,97 @@
+services:
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.5.0
+    container_name: kafka_zookeeper
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    healthcheck:
+      test: ["CMD", "nc", "-z", "localhost", "2181"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  kafka:
+    image: confluentinc/cp-kafka:7.5.0
+    container_name: kafka_broker
+    depends_on:
+      zookeeper:
+        condition: service_healthy
+    ports:
+      - "9092:9092"
+      - "9093:9093"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092,PLAINTEXT_INTERNAL://kafka:29092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_INTERNAL:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT_INTERNAL
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "false"
+    healthcheck:
+      test: ["CMD", "kafka-broker-api-versions", "--bootstrap-server", "localhost:9092"]
+      interval: 10s
+      timeout: 10s
+      retries: 5
+
+  kafka-init:
+    image: confluentinc/cp-kafka:7.5.0
+    container_name: kafka_init
+    depends_on:
+      kafka:
+        condition: service_healthy
+    entrypoint: ["/bin/sh", "-c"]
+    command: |
+      "
+      echo 'Waiting for Kafka to be ready...'
+      cub kafka-ready -b kafka:29092 1 30
+      
+      echo 'Creating topics...'
+      kafka-topics --create --if-not-exists --bootstrap-server kafka:29092 --topic order_events --partitions 3 --replication-factor 1
+      kafka-topics --create --if-not-exists --bootstrap-server kafka:29092 --topic inventory_events --partitions 3 --replication-factor 1
+      
+      echo 'Topics created successfully'
+      kafka-topics --list --bootstrap-server kafka:29092
+      "
+
+  producer_order:
+    build: ./producer_order
+    container_name: kafka_producer
+    depends_on:
+      kafka-init:
+        condition: service_completed_successfully
+    environment:
+      BOOTSTRAP_SERVERS: kafka:29092
+      EVENTS: ${EVENTS:-1000}
+      RATE_PER_SEC: ${RATE_PER_SEC:-}
+    volumes:
+      - ./metrics_report.txt:/app/metrics_report.txt
+    # Producer is a batch job: produces EVENTS then exits. Keep container up so it doesn't show "Exited".
+    command: ["sh", "-c", "java -jar /app/app.jar; echo 'Producer finished. Keeping container alive.'; exec tail -f /dev/null"]
+
+  inventory_consumer:
+    build: ./inventory_consumer
+    container_name: kafka_inventory_consumer
+    depends_on:
+      kafka-init:
+        condition: service_completed_successfully
+    environment:
+      BOOTSTRAP_SERVERS: kafka:29092
+      CONSUMER_GROUP: inventory
+      THROTTLE_MS_PER_MSG: ${THROTTLE_MS_PER_MSG:-0}
+    volumes:
+      - ./inventory_consumer/processed_orders:/app/processed_orders
+    command: ["java", "-jar", "/app/app.jar"]
+
+  analytics_consumer:
+    build: ./analytics_consumer
+    container_name: kafka_analytics_consumer
+    depends_on:
+      kafka-init:
+        condition: service_completed_successfully
+    environment:
+      BOOTSTRAP_SERVERS: kafka:29092
+      CONSUMER_GROUP: analytics
+    volumes:
+      - ./metrics_report.txt:/app/metrics_report.txt
+    command: ["java", "-jar", "/app/app.jar"]
