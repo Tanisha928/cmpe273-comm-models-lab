@@ -11,78 +11,87 @@ Write-Host "=========================================="
 $artifactsDir = Join-Path $scriptDir "artifacts"
 if (-not (Test-Path $artifactsDir)) { New-Item -ItemType Directory -Path $artifactsDir -Force | Out-Null }
 
+# Metrics are written to analytics_reports/metrics_report.txt (directory mount)
+$reportsDir = Join-Path $rootDir "analytics_reports"
+if (-not (Test-Path $reportsDir)) { New-Item -ItemType Directory -Path $reportsDir -Force | Out-Null }
+
 Write-Host "Starting services..."
-docker compose up -d
+$ErrorActionPreference = "SilentlyContinue"
+docker compose up -d | Out-Null
+$ErrorActionPreference = "Stop"
 
 Write-Host "Waiting for services to initialize..."
 Start-Sleep -Seconds 15
 
 Write-Host "Producing initial events..."
+$ErrorActionPreference = "SilentlyContinue"
 docker compose run --rm -e EVENTS=1000 producer_order
+$ErrorActionPreference = "Stop"
 
-Write-Host "Waiting for initial processing..."
-Start-Sleep -Seconds 10
+# Use the long-running analytics consumer (already up). Wait for it to process and write to analytics_reports/metrics_report.txt.
+Write-Host "Waiting for analytics to process (20s)..."
+Start-Sleep -Seconds 20
 
-# Run analytics for ~30s then stop (captures first pass)
-Write-Host "Running analytics (first run) for 30 seconds..."
-$job = Start-Job -ScriptBlock {
-    Set-Location $using:rootDir
-    docker compose run --rm analytics_consumer
-}
-Start-Sleep -Seconds 30
-Stop-Job $job -ErrorAction SilentlyContinue
-Remove-Job $job -Force -ErrorAction SilentlyContinue
-Start-Sleep -Seconds 2
-
-$metricsFile = Join-Path $rootDir "metrics_report.txt"
+$metricsFile = Join-Path $rootDir "analytics_reports\metrics_report.txt"
 $beforeFile = Join-Path $artifactsDir "metrics_report_before.txt"
 $beforeContent = $null
 if (Test-Path $metricsFile) {
-    for ($r = 0; $r -lt 3; $r++) {
-        try { $beforeContent = Get-Content $metricsFile -Raw -ErrorAction Stop; break } catch { Start-Sleep -Seconds 2 }
+    for ($r = 0; $r -lt 5; $r++) {
+        try {
+            $beforeContent = Get-Content $metricsFile -Raw -ErrorAction Stop
+            if ($beforeContent -and $beforeContent.Trim().Length -gt 10) { break }
+        } catch { }
+        Start-Sleep -Seconds 2
     }
-    if ($beforeContent) {
+    if ($beforeContent -and $beforeContent.Trim().Length -gt 10) {
         [System.IO.File]::WriteAllText($beforeFile, $beforeContent)
         Write-Host "Saved metrics_report_before.txt"
     } else {
         Copy-Item -Path $metricsFile -Destination $beforeFile -Force -ErrorAction SilentlyContinue
-        Write-Host "Saved metrics_report_before.txt (open manually if needed)"
+        Write-Host "Saved metrics_report_before.txt (content may be empty if analytics has not written yet)"
     }
 } else {
     Write-Host "Warning: metrics_report.txt not found"
 }
 
 Write-Host ""
+Write-Host "Stopping analytics consumer so we can reset offsets..."
+$ErrorActionPreference = "SilentlyContinue"
+docker compose stop analytics_consumer | Out-Null
+$ErrorActionPreference = "Stop"
+Start-Sleep -Seconds 3
+
 Write-Host "Resetting offsets for analytics group to earliest..."
+$ErrorActionPreference = "SilentlyContinue"
 docker compose exec kafka kafka-consumer-groups --bootstrap-server localhost:9092 --group analytics --reset-offsets --to-earliest --execute --topic order_events 2>$null
 docker compose exec kafka kafka-consumer-groups --bootstrap-server localhost:9092 --group analytics --reset-offsets --to-earliest --execute --topic inventory_events 2>$null
+$ErrorActionPreference = "Stop"
 
-Write-Host "Offsets reset. Waiting 5 seconds..."
-Start-Sleep -Seconds 5
+Write-Host "Starting analytics consumer for replay..."
+$ErrorActionPreference = "SilentlyContinue"
+docker compose up -d analytics_consumer | Out-Null
+$ErrorActionPreference = "Stop"
 
-Write-Host ""
-Write-Host "Running analytics (replay) for 30 seconds..."
-$job2 = Start-Job -ScriptBlock {
-    Set-Location $using:rootDir
-    docker compose run --rm analytics_consumer
-}
-Start-Sleep -Seconds 30
-Stop-Job $job2 -ErrorAction SilentlyContinue
-Remove-Job $job2 -Force -ErrorAction SilentlyContinue
-Start-Sleep -Seconds 2
+# Wait for consumer to reprocess from earliest and write again.
+Write-Host "Waiting for replay processing (25s)..."
+Start-Sleep -Seconds 25
 
 $afterFile = Join-Path $artifactsDir "metrics_report_after.txt"
 $afterContent = $null
 if (Test-Path $metricsFile) {
-    for ($r = 0; $r -lt 3; $r++) {
-        try { $afterContent = Get-Content $metricsFile -Raw -ErrorAction Stop; break } catch { Start-Sleep -Seconds 2 }
+    for ($r = 0; $r -lt 5; $r++) {
+        try {
+            $afterContent = Get-Content $metricsFile -Raw -ErrorAction Stop
+            if ($afterContent -and $afterContent.Trim().Length -gt 10) { break }
+        } catch { }
+        Start-Sleep -Seconds 2
     }
-    if ($afterContent) {
+    if ($afterContent -and $afterContent.Trim().Length -gt 10) {
         [System.IO.File]::WriteAllText($afterFile, $afterContent)
         Write-Host "Saved metrics_report_after.txt"
     } else {
         Copy-Item -Path $metricsFile -Destination $afterFile -Force -ErrorAction SilentlyContinue
-        Write-Host "Saved metrics_report_after.txt (open manually if needed)"
+        Write-Host "Saved metrics_report_after.txt (content may be empty if analytics has not written yet)"
     }
 } else {
     Write-Host "Warning: metrics_report.txt not found"

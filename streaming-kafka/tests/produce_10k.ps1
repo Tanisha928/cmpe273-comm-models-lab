@@ -19,8 +19,10 @@ docker compose up -d kafka-init | Out-Null
 $ErrorActionPreference = "Stop"
 Start-Sleep -Seconds 5
 
-# Run producer with 10k events
+# Run producer with 10k events (SilentlyContinue so Docker stderr does not throw)
+$ErrorActionPreference = "SilentlyContinue"
 docker compose run --rm -e EVENTS=10000 producer_order
+$ErrorActionPreference = "Stop"
 
 Write-Host ""
 Write-Host "=========================================="

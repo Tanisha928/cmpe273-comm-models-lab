@@ -11,6 +11,8 @@ import org.apache.kafka.common.serialization.StringDeserializer;
 
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.time.Instant;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -22,7 +24,7 @@ public class AnalyticsConsumer {
     private static final String ORDER_TOPIC = "order_events";
     private static final String INVENTORY_TOPIC = "inventory_events";
     private static final String CONSUMER_GROUP = "analytics";
-    private static final String METRICS_FILE = "/app/metrics_report.txt";
+    private static final String METRICS_FILE = "/app/reports/metrics_report.txt";
     
     // Event-time based metrics: minute bucket -> count
     private final Map<String, Integer> ordersPerMinute = new ConcurrentHashMap<>();
@@ -138,6 +140,12 @@ public class AnalyticsConsumer {
     }
     
     private void writeMetricsReport() {
+        try {
+            Files.createDirectories(Paths.get(METRICS_FILE).getParent());
+        } catch (IOException e) {
+            logError("Failed to create reports dir", null, null, e);
+            return;
+        }
         try (FileWriter writer = new FileWriter(METRICS_FILE)) {
             writer.write("========================================\n");
             writer.write("KAFKA STREAMING ANALYTICS REPORT\n");

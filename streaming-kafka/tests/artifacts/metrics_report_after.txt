@@ -1,0 +1,15 @@
+========================================
+KAFKA STREAMING ANALYTICS REPORT
+Generated: 2026-02-17T06:49:42.806219301Z
+========================================
+
+OVERALL METRICS:
+  Total Orders: 0
+  Total Failed: 0
+  Failure Rate: 0.00%
+
+ORDERS PER MINUTE (Event Time):
+  Minute Bucket                    | Orders | Failed | Failure Rate
+  ----------------------------------|--------|--------|-------------
+
+========================================

@@ -70,4 +70,3 @@
 
 ---
 
-*For detailed explanations, see `ASSIGNMENT_SUBMISSION.md`*

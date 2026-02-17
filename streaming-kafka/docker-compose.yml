@@ -64,8 +64,6 @@ services:
       BOOTSTRAP_SERVERS: kafka:29092
       EVENTS: ${EVENTS:-1000}
       RATE_PER_SEC: ${RATE_PER_SEC:-}
-    volumes:
-      - ./metrics_report.txt:/app/metrics_report.txt
     # Producer is a batch job: produces EVENTS then exits. Keep container up so it doesn't show "Exited".
     command: ["sh", "-c", "java -jar /app/app.jar; echo 'Producer finished. Keeping container alive.'; exec tail -f /dev/null"]
 
@@ -93,5 +91,5 @@ services:
       BOOTSTRAP_SERVERS: kafka:29092
       CONSUMER_GROUP: analytics
     volumes:
-      - ./metrics_report.txt:/app/metrics_report.txt
+      - ./analytics_reports:/app/reports
     command: ["java", "-jar", "/app/app.jar"]

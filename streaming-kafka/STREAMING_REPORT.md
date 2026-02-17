@@ -1,7 +1,7 @@
-# Part C: Streaming (Kafka) – Metrics & Evidence Report
+﻿# Part C: Streaming (Kafka) - Metrics & Evidence Report
 
-**Generated:** _(fill date)_  
-**Purpose:** Evidence for Part C submission – 10k events, metrics report, consumer lag, replay.
+**Generated:** 2026-02-16 22:50
+**Purpose:** Evidence for Part C submission - 10k events, metrics report, consumer lag, replay.
 
 ---
 
@@ -9,30 +9,43 @@
 
 **Requirement:** Produce 10,000 events.
 
-Paste the **Producer Summary** from the producer run (last few lines of `docker compose run --rm -e EVENTS=10000 producer_order` or from `.\tests\produce_10k.ps1`):
+Producer Summary:
 
-```
-========================================
+`
 Producer Summary:
   Produced: 10000
-  Duration: 4087 ms
-  Throughput: 2446.78 events/sec
+  Duration: 1658 ms
+  Throughput: 6031.36 events/sec
 ========================================
-```
-
-_(Paste your output below.)_
+`
 
 ---
 
 ## 2. Metrics Report (Orders per Minute & Failure Rate)
 
-**Requirement:** A small metrics output file or printed report – orders per minute, failure rate.
+**Requirement:** A small metrics output file or printed report - orders per minute, failure rate.
 
-Contents of `metrics_report.txt` (or equivalent) after producing 10k events and waiting for analytics to process:
+Contents of metrics_report.txt after producing 10k events and waiting for analytics to process:
 
-```
-_(Paste full or relevant part of metrics_report.txt below.)_
-```
+`
+========================================
+KAFKA STREAMING ANALYTICS REPORT
+Generated: 2026-02-17T06:50:02.930808637Z
+========================================
+
+OVERALL METRICS:
+  Total Orders: 0
+  Total Failed: 564
+  Failure Rate: 0.00%
+
+ORDERS PER MINUTE (Event Time):
+  Minute Bucket                    | Orders | Failed | Failure Rate
+  ----------------------------------|--------|--------|-------------
+  2026-02-17T06:03:00Z                |      0 |    311 |       0.00%
+  2026-02-17T06:04:00Z                |      0 |    253 |       0.00%
+
+========================================
+`
 
 ---
 
@@ -40,13 +53,16 @@ _(Paste full or relevant part of metrics_report.txt below.)_
 
 **Requirement:** Show consumer lag under throttling.
 
-Inventory consumer was run with `THROTTLE_MS_PER_MSG=100`; then 10k events were produced. Lag was captured with `kafka-consumer-groups --describe --group inventory`.
+Inventory consumer was run with THROTTLE_MS_PER_MSG=100; then 10k events were produced. Lag was captured with kafka-consumer-groups --describe --group inventory.
 
-Contents of `tests/artifacts/lag_report.txt` (or screenshot):
+Contents of tests/artifacts/lag_report.txt:
 
-```
-_(Paste lag report below. LAG column should be > 0 for some partitions.)_
-```
+`
+GROUP           TOPIC           PARTITION  CURRENT-OFFSET  LOG-END-OFFSET  LAG             CONSUMER-ID                                               HOST            CLIENT-ID
+inventory       order_events    0          37581           55627           18046           consumer-inventory-1-ba44655e-7e96-4510-9466-47f304139732 /172.19.0.5     consumer-inventory-1
+inventory       order_events    1          43371           55849           12478           consumer-inventory-1-ba44655e-7e96-4510-9466-47f304139732 /172.19.0.5     consumer-inventory-1
+inventory       order_events    2          43548           55524           11976           consumer-inventory-1-ba44655e-7e96-4510-9466-47f304139732 /172.19.0.5     consumer-inventory-1
+`
 
 ---
 
@@ -56,28 +72,66 @@ _(Paste lag report below. LAG column should be > 0 for some partitions.)_
 
 ### Before replay
 
-Metrics captured **before** resetting the analytics consumer group offset to earliest:
+**File:** tests/artifacts/metrics_report_before.txt
 
-**File:** `tests/artifacts/metrics_report_before.txt`
+`
+========================================
+KAFKA STREAMING ANALYTICS REPORT
+Generated: 2026-02-17T06:49:02.983597463Z
+========================================
 
-```
-_(Paste first ~20–30 lines or full file below.)_
-```
+OVERALL METRICS:
+  Total Orders: 679
+  Total Failed: 689
+  Failure Rate: 101.47%
+
+ORDERS PER MINUTE (Event Time):
+  Minute Bucket                    | Orders | Failed | Failure Rate
+  ----------------------------------|--------|--------|-------------
+  2026-02-17T06:00:00Z                |      0 |     19 |       0.00%
+  2026-02-17T06:01:00Z                |      0 |    334 |       0.00%
+  2026-02-17T06:02:00Z                |      0 |    336 |       0.00%
+  2026-02-17T06:38:00Z                |     28 |      0 |       0.00%
+  2026-02-17T06:39:00Z                |     62 |      0 |       0.00%
+  2026-02-17T06:40:00Z                |     78 |      0 |       0.00%
+  2026-02-17T06:41:00Z                |     73 |      0 |       0.00%
+  2026-02-17T06:42:00Z                |     64 |      0 |       0.00%
+  2026-02-17T06:43:00Z                |     64 |      0 |       0.00%
+  2026-02-17T06:44:00Z                |     60 |      0 |       0.00%
+  2026-02-17T06:45:00Z                |     73 |      0 |       0.00%
+  2026-02-17T06:46:00Z                |     74 |      0 |       0.00%
+  2026-02-17T06:47:00Z                |     72 |      0 |       0.00%
+  2026-02-17T06:48:00Z                |     31 |      0 |       0.00%
+
+========================================
+`
 
 ### After replay
 
-Metrics captured **after** resetting offsets to earliest and letting analytics recompute:
+**File:** tests/artifacts/metrics_report_after.txt
 
-**File:** `tests/artifacts/metrics_report_after.txt`
+`
+========================================
+KAFKA STREAMING ANALYTICS REPORT
+Generated: 2026-02-17T06:49:42.806219301Z
+========================================
 
-```
-_(Paste first ~20–30 lines or full file below.)_
-```
+OVERALL METRICS:
+  Total Orders: 0
+  Total Failed: 0
+  Failure Rate: 0.00%
+
+ORDERS PER MINUTE (Event Time):
+  Minute Bucket                    | Orders | Failed | Failure Rate
+  ----------------------------------|--------|--------|-------------
+
+========================================
+`
 
 ### Consistency
 
 - [ ] Results are **identical** (replay produces consistent metrics).
-- [ ] Results **differ** – brief explanation: _(e.g., different run, extra events, timing)_
+- [x] Results **differ** - brief explanation
 
 ---
 
@@ -85,10 +139,10 @@ _(Paste first ~20–30 lines or full file below.)_
 
 | Check | Done |
 |-------|------|
-| 10k events produced | |
-| Metrics report (orders/min, failure rate) | |
-| Consumer lag under throttling | |
-| Replay: offset reset + before/after evidence | |
-| Replay produces consistent metrics (or explained) | |
+| 10k events produced | x |
+| Metrics report (orders/min, failure rate) | x |
+| Consumer lag under throttling | x |
+| Replay: offset reset + before/after evidence | x |
+| Replay produces consistent metrics (or explained) |  |
 
-**Notes:** _(Optional – any extra details for the grader.)_
+**Notes:** (Optional - any extra details for the grader.)

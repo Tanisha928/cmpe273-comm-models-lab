@@ -4,10 +4,35 @@ This guide walks you through testing the Kafka implementation and collecting evi
 
 ---
 
+## One Command: Run All Tests and Generate Report
+
+From the **streaming-kafka** directory, run:
+
+```powershell
+.\tests\generate_report.ps1
+```
+
+This will:
+1. Start the stack (if not already running)
+2. Produce 10,000 events and capture the producer summary
+3. Wait for analytics, then run the lag demo (throttled consumer + lag report)
+4. Run the replay demo (before/after metrics)
+5. Write **STREAMING_REPORT.md** with all sections filled from the run
+
+Open `STREAMING_REPORT.md` to review or submit.
+
+**To only regenerate the report from existing artifacts** (without re-running tests):
+
+```powershell
+.\tests\generate_report.ps1 -GenerateOnly
+```
+
+---
+
 ## Prerequisites
 
 - Docker and Docker Compose installed and running.
-- Terminal: use **PowerShell** on Windows, or **bash** (Git Bash / WSL / Mac/Linux) for `.sh` scripts.
+- **PowerShell** (run all scripts from the `streaming-kafka` directory).
 
 ---
 
@@ -16,14 +41,7 @@ This guide walks you through testing the Kafka implementation and collecting evi
 From the **streaming-kafka** directory:
 
 ```powershell
-# Windows (PowerShell)
 cd path\to\cmpe273-comm-models-lab\streaming-kafka
-docker compose up -d
-```
-
-```bash
-# Linux/Mac/Git Bash
-cd streaming-kafka
 docker compose up -d
 ```
 
@@ -43,16 +61,8 @@ docker compose ps
 
 ### Option A: Use the test script
 
-**PowerShell (Windows):**
 ```powershell
-cd tests
-.\produce_10k.ps1
-```
-
-**Bash:**
-```bash
-chmod +x tests/produce_10k.sh
-./tests/produce_10k.sh
+.\tests\produce_10k.ps1
 ```
 
 ### Option B: Run producer manually
@@ -79,13 +89,7 @@ The analytics consumer writes to `metrics_report.txt` in the **streaming-kafka**
 2. Open or print the report:
 
 ```powershell
-# From streaming-kafka directory
 Get-Content metrics_report.txt
-# Or: type metrics_report.txt
-```
-
-```bash
-cat metrics_report.txt
 ```
 
 **Evidence to collect:**
@@ -108,15 +112,8 @@ This step slows the inventory consumer so it falls behind the producer; then we 
 
 2. **Run the lag demo:**
 
-   **PowerShell:**
    ```powershell
    .\tests\lag_demo.ps1
-   ```
-
-   **Bash:**
-   ```bash
-   chmod +x tests/lag_demo.sh
-   ./tests/lag_demo.sh
    ```
 
    The script will:
@@ -156,15 +153,8 @@ The replay demo:
 
 2. **Run the replay demo:**
 
-   **PowerShell:**
    ```powershell
    .\tests\replay_demo.ps1
-   ```
-
-   **Bash:**
-   ```bash
-   chmod +x tests/replay_demo.sh
-   ./tests/replay_demo.sh
    ```
 
 3. **Check artifacts:**

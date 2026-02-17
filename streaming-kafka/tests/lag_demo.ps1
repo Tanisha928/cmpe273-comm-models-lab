@@ -35,7 +35,9 @@ Write-Host "Waiting for consumer to start..."
 Start-Sleep -Seconds 5
 
 Write-Host "Producing 10,000 events..."
+$ErrorActionPreference = "SilentlyContinue"
 docker compose run --rm -e EVENTS=10000 producer_order
+$ErrorActionPreference = "Stop"
 
 Write-Host "Waiting 30 seconds for processing..."
 Start-Sleep -Seconds 30
