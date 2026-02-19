@@ -130,7 +130,7 @@ Expected:
 [notification] CONFIRM order=... user=u1 reason=reserved
 ```
 
-Screenshot: Notification confirmation log.
+Screenshot in 273_Rabitmqss folder: Notification confirmation log.
 
 ---
 
@@ -162,7 +162,7 @@ Open RabbitMQ UI → Queues → `q.order_placed`
 Expected:
 - Ready > 0
 
-Screenshot: Backlog built (Ready count high).
+Screenshot in 273_Rabitmqss folder: Backlog built (Ready count high).
 
 ### Step 4: Restart InventoryService
 
@@ -175,7 +175,7 @@ Refresh queue page.
 Expected:
 - Ready count decreases to 0
 
-Screenshot: Backlog drained (Ready = 0).
+Screenshot in 273_Rabitmqss folder: Backlog drained (Ready = 0).
 
 ---
 
@@ -209,7 +209,7 @@ Expected:
 [inventory] order=dup-1 type=InventoryReserved reason=idempotent
 ```
 
-Screenshot: Idempotency proof.
+Screenshot in 273_Rabitmqss folder: Idempotency proof.
 
 ---
 
@@ -244,7 +244,7 @@ RabbitMQ UI → Queues → `q.order_placed.dlq`
 Expected:
 - Ready > 0
 
-Screenshot: DLQ Ready count > 0.
+Screenshot in 273_Rabitmqss folder: DLQ Ready count > 0.
 
 ---
 
