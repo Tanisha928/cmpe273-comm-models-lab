@@ -1,0 +1,10 @@
+edu/cmpe273/inventory/config/RabbitConfig.class
+edu/cmpe273/inventory/model/Reservation.class
+edu/cmpe273/inventory/model/Stock.class
+edu/cmpe273/inventory/repo/ReservationRepository.class
+edu/cmpe273/inventory/amqp/InventoryListener.class
+edu/cmpe273/inventory/service/ReservationService$Result.class
+edu/cmpe273/inventory/InventoryApplication.class
+edu/cmpe273/inventory/SeedData.class
+edu/cmpe273/inventory/service/ReservationService.class
+edu/cmpe273/inventory/repo/StockRepository.class
