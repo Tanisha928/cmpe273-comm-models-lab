@@ -31,11 +31,6 @@ The system is event-driven, resilient to service downtime, and supports idempote
 - Consumes `InventoryReserved`
 - Logs confirmation message
 
-## RabbitMQ (Broker)
-- Manages exchanges and queues
-- Stores backlog when consumers are down
-- Handles Dead Letter Queues
-
 ---
 
 # Exchanges
