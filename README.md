@@ -493,6 +493,16 @@ All artifacts are in: **[`streaming-kafka/tests/artifacts/`](streaming-kafka/tes
 
 Artifact reference: **[`streaming-kafka/REPORT_FILES.md`](streaming-kafka/REPORT_FILES.md)**
 
+#### Screenshots
+
+![Producer 10k events](streaming-kafka/images/producer_10k.png)
+
+![Consumer lag under throttling](streaming-kafka/images/consumer_lag.png)
+
+![Replay producer](streaming-kafka/images/replay_producer.png)  
+![Replay steps](streaming-kafka/images/replay_steps.png)  
+![Replay metrics](streaming-kafka/images/replay_metrics.png)
+
 #### Test 1: 10,000 Event Production
 
 | Metric | Value |

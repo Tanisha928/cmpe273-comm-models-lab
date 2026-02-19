@@ -170,23 +170,13 @@ The replay demo:
 
 ---
 
-## Step 6: Fill the Report and What to Submit
+## Step 6: Fill the Report
 
 1. Open **STREAMING_REPORT.md** in the `streaming-kafka` folder.
 2. Fill in each section with:
    - Pasted output (producer summary, metrics report, lag report, before/after replay).
    - Short notes (e.g., “Lag visible under throttling,” “Replay produced identical metrics”).
 3. Save the report.
-
-**Suggested submission checklist:**
-
-| Item | Description |
-|------|-------------|
-| **Metrics output** | `metrics_report.txt` and/or the “Metrics Report” section in `STREAMING_REPORT.md` |
-| **10k events** | Producer summary (in report or screenshot) showing 10,000 events produced |
-| **Consumer lag** | `tests/artifacts/lag_report.txt` and/or “Consumer Lag” section in `STREAMING_REPORT.md` |
-| **Replay evidence** | `metrics_report_before.txt`, `metrics_report_after.txt`, and “Replay” section in `STREAMING_REPORT.md` |
-| **Report** | Completed `STREAMING_REPORT.md` (or PDF/print of it) |
 
 ---
 

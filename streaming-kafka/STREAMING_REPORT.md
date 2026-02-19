@@ -175,14 +175,3 @@ When results differ: replay resets analytics consumer offset to earliest, causin
 | Consumer lag under throttling | x |
 | Replay: offset reset + before/after evidence | x |
 | Replay produces consistent metrics (or explained) |  |
-
----
-
-## 6. What to Submit
-
-| Submission Item | Location |
-|-----------------|----------|
-| **Metrics output file / printed report** | Section 2 above; file: `analytics_reports/metrics_report.txt` or Section 2 contents |
-| **Evidence of replay (before and after)** | Section 4 above; files: `tests/artifacts/metrics_report_before.txt`, `tests/artifacts/metrics_report_after.txt` |
-
-**Notes:** (Optional - any extra details for the grader.)

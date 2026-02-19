@@ -230,16 +230,6 @@ When results differ: replay resets analytics consumer offset to earliest, causin
 | Replay: offset reset + before/after evidence | $c4 |
 | Replay produces consistent metrics (or explained) | $c5 |
 
----
-
-## 6. What to Submit
-
-| Submission Item | Location |
-|-----------------|----------|
-| **Metrics output file / printed report** | Section 2 above; file: ``analytics_reports/metrics_report.txt`` or Section 2 contents |
-| **Evidence of replay (before and after)** | Section 4 above; files: ``tests/artifacts/metrics_report_before.txt``, ``tests/artifacts/metrics_report_after.txt`` |
-
-**Notes:** (Optional - any extra details for the grader.)
 "@
 
 [System.IO.File]::WriteAllText($reportPath, $report, [System.Text.Encoding]::UTF8)
