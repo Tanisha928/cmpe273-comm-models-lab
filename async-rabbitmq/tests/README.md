@@ -265,16 +265,6 @@ This guarantees duplicate message delivery does not cause double reservation.
 
 ---
 
-# Evidence Checklist
-
-- Backlog built screenshot (Ready > 0)
-- Backlog drained screenshot (Ready = 0)
-- Idempotency log screenshot
-- DLQ queue screenshot
-- Notification confirmation screenshot
-
----
-
 # Conclusion
 
 This implementation satisfies all Part B requirements:
