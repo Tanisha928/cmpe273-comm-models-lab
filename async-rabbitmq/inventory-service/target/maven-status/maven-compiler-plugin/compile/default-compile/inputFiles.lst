@@ -1,0 +1,9 @@
+/Users/krishnasaiakhilnanduri/Desktop/CMPE 273/cmpe273-comm-models-lab/async-rabbitmq/inventory-service/src/main/java/edu/cmpe273/inventory/InventoryApplication.java
+/Users/krishnasaiakhilnanduri/Desktop/CMPE 273/cmpe273-comm-models-lab/async-rabbitmq/inventory-service/src/main/java/edu/cmpe273/inventory/model/Stock.java
+/Users/krishnasaiakhilnanduri/Desktop/CMPE 273/cmpe273-comm-models-lab/async-rabbitmq/inventory-service/src/main/java/edu/cmpe273/inventory/repo/StockRepository.java
+/Users/krishnasaiakhilnanduri/Desktop/CMPE 273/cmpe273-comm-models-lab/async-rabbitmq/inventory-service/src/main/java/edu/cmpe273/inventory/service/ReservationService.java
+/Users/krishnasaiakhilnanduri/Desktop/CMPE 273/cmpe273-comm-models-lab/async-rabbitmq/inventory-service/src/main/java/edu/cmpe273/inventory/amqp/InventoryListener.java
+/Users/krishnasaiakhilnanduri/Desktop/CMPE 273/cmpe273-comm-models-lab/async-rabbitmq/inventory-service/src/main/java/edu/cmpe273/inventory/SeedData.java
+/Users/krishnasaiakhilnanduri/Desktop/CMPE 273/cmpe273-comm-models-lab/async-rabbitmq/inventory-service/src/main/java/edu/cmpe273/inventory/repo/ReservationRepository.java
+/Users/krishnasaiakhilnanduri/Desktop/CMPE 273/cmpe273-comm-models-lab/async-rabbitmq/inventory-service/src/main/java/edu/cmpe273/inventory/model/Reservation.java
+/Users/krishnasaiakhilnanduri/Desktop/CMPE 273/cmpe273-comm-models-lab/async-rabbitmq/inventory-service/src/main/java/edu/cmpe273/inventory/config/RabbitConfig.java
