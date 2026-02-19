@@ -34,9 +34,9 @@ public class InventoryConsumer {
     private final Path processedOrdersFile;
     
     public InventoryConsumer() {
-        // Initialize inventory
-        stock.put("burrito", 5000);
-        stock.put("pizza", 5000);
+        // Initialize inventory - high enough for 10k+ orders (qty 1-10 each)
+        stock.put("burrito", 100000);
+        stock.put("pizza", 100000);
         
         // Load processed orders from file for idempotency
         processedOrdersFile = Paths.get("/app/processed_orders/orders.txt");

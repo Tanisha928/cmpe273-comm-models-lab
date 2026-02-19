@@ -89,12 +89,8 @@ Generated output files:
 | File | Description |
 |------|-------------|
 | `latency_report.md` | Markdown report with all three test results |
-| `latency_baseline.html` | Interactive Chart.js visualization for baseline |
-| `latency_delay.html` | Interactive Chart.js visualization for delay test |
-| `latency_failure.html` | Failure verification summary |
-| `latency_index.html` | Index page linking all HTML reports |
 
-Open `latency_index.html` in a browser for interactive charts, or read `latency_report.md` for the raw data.
+Read `latency_report.md` for the test output.
 
 #### Step 4: Stop Services
 
@@ -104,16 +100,9 @@ docker compose down
 
 ### Testing & Results
 
-All latency test results are documented in two report files:
+All latency test results are documented in:
 
 - **[Latency Table Summary](sync-rest/LATENCY_TABLE_SUMMARY.md)** - Analytical summary with reasoning for each test
-- **[Latency Report (raw data)](sync-rest/latency_report.md)** - Machine-generated test output with exact numbers
-
-HTML visualizations are also available:
-- [`latency_baseline.html`](sync-rest/latency_baseline.html)
-- [`latency_delay.html`](sync-rest/latency_delay.html)
-- [`latency_failure.html`](sync-rest/latency_failure.html)
-- [`latency_index.html`](sync-rest/latency_index.html)
 
 #### Test 1: Baseline Latency (N=200 requests)
 
@@ -580,10 +569,7 @@ Before replay: 679 orders, 689 failed. After replay: 0 orders, 0 failed (consume
 | File | Description |
 |------|-------------|
 | [`sync-rest/LATENCY_TABLE_SUMMARY.md`](sync-rest/LATENCY_TABLE_SUMMARY.md) | Latency analysis with reasoning |
-| [`sync-rest/latency_report.md`](sync-rest/latency_report.md) | Raw latency test output |
-| [`sync-rest/latency_baseline.html`](sync-rest/latency_baseline.html) | Baseline test visualization |
-| [`sync-rest/latency_delay.html`](sync-rest/latency_delay.html) | 2s delay test visualization |
-| [`sync-rest/latency_failure.html`](sync-rest/latency_failure.html) | Failure test visualization |
+| [`sync-rest/latency_report.md`](sync-rest/latency_report.md) | Latency test output |
 
 ### Part B - Async RabbitMQ
 | File | Description |

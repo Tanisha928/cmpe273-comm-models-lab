@@ -70,9 +70,19 @@ Producer → order_events topic → InventoryConsumer → inventory_events topic
 
 ## Quick Start
 
-### 1. Build and Start All Services
+### One command: run all tests and generate report
 
-```bash
+From the **streaming-kafka** directory:
+
+```powershell
+.\tests\generate_report.ps1
+```
+
+This runs produce 10k, lag demo, and replay demo, then writes **STREAMING_REPORT.md** with all evidence filled in. Use `-GenerateOnly` to only regenerate the report from existing artifacts.
+
+### 1. Build and Start All Services (manual)
+
+```powershell
 cd streaming-kafka
 docker compose up --build
 ```
@@ -84,10 +94,9 @@ This will:
 
 ### 2. Produce 10,000 Events
 
-```bash
+```powershell
 # Option 1: Using test script
-chmod +x tests/produce_10k.sh
-./tests/produce_10k.sh
+.\tests\produce_10k.ps1
 
 # Option 2: Using docker compose directly
 docker compose run --rm -e EVENTS=10000 producer_order
@@ -97,8 +106,8 @@ docker compose run --rm -e EVENTS=10000 producer_order
 
 The analytics consumer continuously writes metrics to `metrics_report.txt`:
 
-```bash
-cat metrics_report.txt
+```powershell
+Get-Content metrics_report.txt
 ```
 
 Example output:
@@ -121,13 +130,14 @@ ORDERS PER MINUTE (Event Time):
   ...
 ```
 
-## Test Scripts
+## Test Scripts (PowerShell)
+
+Run from the **streaming-kafka** directory.
 
 ### Produce 10K Events
 
-```bash
-chmod +x tests/produce_10k.sh
-./tests/produce_10k.sh
+```powershell
+.\tests\produce_10k.ps1
 ```
 
 ### Consumer Lag Demo
@@ -137,9 +147,8 @@ Demonstrates consumer lag by:
 2. Producing 10,000 events
 3. Checking lag using Kafka CLI
 
-```bash
-chmod +x tests/lag_demo.sh
-./tests/lag_demo.sh
+```powershell
+.\tests\lag_demo.ps1
 ```
 
 Output saved to `tests/artifacts/lag_report.txt`
@@ -152,9 +161,8 @@ Tests idempotency and replay consistency:
 3. Replays events and runs analytics again (saves `metrics_report_after.txt`)
 4. Compares results (should be identical)
 
-```bash
-chmod +x tests/replay_demo.sh
-./tests/replay_demo.sh
+```powershell
+.\tests\replay_demo.ps1
 ```
 
 ## Environment Variables
@@ -176,42 +184,37 @@ chmod +x tests/replay_demo.sh
 ## Docker Commands
 
 ### Start Services
-```bash
+```powershell
 docker compose up -d
 ```
 
 ### View Logs
-```bash
-# All services
+```powershell
 docker compose logs -f
-
-# Specific service
+# Or for a specific service:
 docker compose logs -f producer_order
 docker compose logs -f inventory_consumer
 docker compose logs -f analytics_consumer
 ```
 
 ### Stop Services
-```bash
+```powershell
 docker compose down
 ```
 
 ### Check Kafka Topics
-```bash
+```powershell
 docker compose exec kafka kafka-topics --list --bootstrap-server localhost:9092
 ```
 
 ### Check Consumer Groups
-```bash
+```powershell
 docker compose exec kafka kafka-consumer-groups --bootstrap-server localhost:9092 --list
 ```
 
 ### Check Consumer Lag
-```bash
-docker compose exec kafka kafka-consumer-groups \
-    --bootstrap-server localhost:9092 \
-    --group inventory \
-    --describe
+```powershell
+docker compose exec kafka kafka-consumer-groups --bootstrap-server localhost:9092 --group inventory --describe
 ```
 
 ## Output Files
@@ -243,31 +246,25 @@ All services log structured JSON:
 
 ### Kafka not ready
 Wait a few seconds after starting services:
-```bash
-sleep 10
+```powershell
+Start-Sleep -Seconds 10
 ```
 
 ### Topics not created
 Check kafka-init logs:
-```bash
+```powershell
 docker compose logs kafka-init
 ```
 
 ### Consumer not processing
 Check consumer logs:
-```bash
+```powershell
 docker compose logs inventory_consumer
 ```
 
 ### Reset consumer offsets manually
-```bash
-docker compose exec kafka kafka-consumer-groups \
-    --bootstrap-server localhost:9092 \
-    --group analytics \
-    --reset-offsets \
-    --to-earliest \
-    --execute \
-    --topic order_events
+```powershell
+docker compose exec kafka kafka-consumer-groups --bootstrap-server localhost:9092 --group analytics --reset-offsets --to-earliest --execute --topic order_events
 ```
 
 ## Architecture Notes

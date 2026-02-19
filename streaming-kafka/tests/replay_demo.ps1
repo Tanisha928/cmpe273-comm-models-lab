@@ -1,4 +1,14 @@
 # Replay Demo - reset analytics offset to earliest, recompute metrics, compare before/after
+#
+# Usage: .\replay_demo.ps1           # Use existing Kafka data
+#        .\replay_demo.ps1 -Fresh    # Fresh Kafka + inventory = zero failure run
+#
+# Flow: 1) (if -Fresh) Reset Kafka volumes and processed_orders for zero-failure run
+#       2) Save current metrics (BEFORE)
+#       3) Stop analytics consumer, reset offsets, restart
+#       4) Wait 90s for reprocessing
+#       5) Save metrics (AFTER)
+param([switch]$Fresh)
 $ErrorActionPreference = "Stop"
 $scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 $rootDir = Split-Path -Parent $scriptDir
@@ -14,6 +24,16 @@ if (-not (Test-Path $artifactsDir)) { New-Item -ItemType Directory -Path $artifa
 # Metrics are written to analytics_reports/metrics_report.txt (directory mount)
 $reportsDir = Join-Path $rootDir "analytics_reports"
 if (-not (Test-Path $reportsDir)) { New-Item -ItemType Directory -Path $reportsDir -Force | Out-Null }
+
+if ($Fresh) {
+    Write-Host "Fresh mode: resetting Kafka and inventory for zero-failure run..."
+    $ErrorActionPreference = "SilentlyContinue"
+    docker compose down -v 2>$null | Out-Null
+    $procOrders = Join-Path $rootDir "inventory_consumer\processed_orders\orders.txt"
+    if (Test-Path $procOrders) { Remove-Item $procOrders -Force }
+    $ErrorActionPreference = "Stop"
+    Start-Sleep -Seconds 3
+}
 
 Write-Host "Starting services..."
 $ErrorActionPreference = "SilentlyContinue"
@@ -63,8 +83,8 @@ Start-Sleep -Seconds 3
 
 Write-Host "Resetting offsets for analytics group to earliest..."
 $ErrorActionPreference = "SilentlyContinue"
-docker compose exec kafka kafka-consumer-groups --bootstrap-server localhost:9092 --group analytics --reset-offsets --to-earliest --execute --topic order_events 2>$null
-docker compose exec kafka kafka-consumer-groups --bootstrap-server localhost:9092 --group analytics --reset-offsets --to-earliest --execute --topic inventory_events 2>$null
+docker compose exec kafka kafka-consumer-groups --bootstrap-server localhost:9092 --group analytics --reset-offsets --to-earliest --execute --topic order_events 2>$null | Out-Null
+docker compose exec kafka kafka-consumer-groups --bootstrap-server localhost:9092 --group analytics --reset-offsets --to-earliest --execute --topic inventory_events 2>$null | Out-Null
 $ErrorActionPreference = "Stop"
 
 Write-Host "Starting analytics consumer for replay..."
@@ -73,8 +93,10 @@ docker compose up -d analytics_consumer | Out-Null
 $ErrorActionPreference = "Stop"
 
 # Wait for consumer to reprocess from earliest and write again.
-Write-Host "Waiting for replay processing (25s)..."
-Start-Sleep -Seconds 25
+# With 20k+ events (from produce_10k + lag_demo), reprocessing takes 45-90s. Use 90s to ensure completion.
+$replayWaitSeconds = 90
+Write-Host "Waiting for replay processing ($replayWaitSeconds s)..."
+Start-Sleep -Seconds $replayWaitSeconds
 
 $afterFile = Join-Path $artifactsDir "metrics_report_after.txt"
 $afterContent = $null

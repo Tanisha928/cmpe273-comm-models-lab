@@ -140,7 +140,17 @@ $report = @"
 # Part C: Streaming (Kafka) - Metrics & Evidence Report
 
 **Generated:** $dateStr
-**Purpose:** Evidence for Part C submission - 10k events, metrics report, consumer lag, replay.
+**Purpose:** Evidence for Part C submission (implementation, 10k events, metrics report, consumer lag, replay).
+
+---
+
+## Implementation Summary
+
+| Requirement | Implementation |
+|-------------|----------------|
+| Producer publishes OrderEvents stream: **OrderPlaced** | Producer publishes OrderPlaced events to topic ``order_events`` |
+| Inventory consumes and emits **InventoryEvents** | Inventory consumer consumes from ``order_events``; emits ``InventoryReserved`` / ``InventoryFailed`` to ``inventory_events`` |
+| Analytics consumes streams and computes: **orders per minute**, **failure rate** | Analytics consumer consumes both ``order_events`` and ``inventory_events``; computes orders/min (event-time bucketed) and failure rate |
 
 ---
 
@@ -206,6 +216,8 @@ $afterReport
 
 $consistencyBlock
 
+When results differ: replay resets analytics consumer offset to earliest, causing it to reprocess all events. The "after" snapshot may differ because (a) analytics state is reset and recomputed from scratch, or (b) timing/capture order may vary. For deterministic replay, ensure no new events are produced during replay and capture after the consumer has finished reprocessing.
+
 ---
 
 ## 5. Summary
@@ -217,6 +229,15 @@ $consistencyBlock
 | Consumer lag under throttling | $c3 |
 | Replay: offset reset + before/after evidence | $c4 |
 | Replay produces consistent metrics (or explained) | $c5 |
+
+---
+
+## 6. What to Submit
+
+| Submission Item | Location |
+|-----------------|----------|
+| **Metrics output file / printed report** | Section 2 above; file: ``analytics_reports/metrics_report.txt`` or Section 2 contents |
+| **Evidence of replay (before and after)** | Section 4 above; files: ``tests/artifacts/metrics_report_before.txt``, ``tests/artifacts/metrics_report_after.txt`` |
 
 **Notes:** (Optional - any extra details for the grader.)
 "@
